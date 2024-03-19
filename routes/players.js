@@ -6,12 +6,8 @@ router.post("/", async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    let player = new Player({
-        firstName: req.body.name
-    });
-    player = await player.save();
-
-    res.send(player);
+    const savedPlayers = await Player.insertMany(req.body.players);
+    res.status(201).send(savedPlayers);
 });
 
 module.exports = router;

@@ -15,7 +15,13 @@ const Player = mongoose.model("Player", playerSchema);
 
 function validatePlayer(player) {
     const schema = joi.object({
-        firstName: joi.string().min(2).max(50).required().label("Player name"),
+        players: joi
+            .array()
+            .items({
+                firstName: joi.string().min(2).max(50).required().label("Player name")
+            })
+            .required()
+            .label("Players")
     })
 
     return schema.validate(player);
