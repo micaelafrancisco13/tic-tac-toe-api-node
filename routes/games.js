@@ -1,9 +1,12 @@
 const { Game, validate } = require("../models/game");
 const { Round } = require("../models/round");
-const { Player } = require("../models/player");
+const { notFound } = require("./utils");
+
 const express = require("express");
 const router = express.Router();
+
 const _ = require("lodash");
+const mongoose = require("mongoose");
 
 router.get("/", async (req, res) => {
 	let games = await Game.find()
@@ -31,6 +34,10 @@ router.post("/", async (req, res) => {
 	});
 
 	const gameId = req.query.id;
+
+	const errorMetadata = { item: "game", id: gameId };
+	if (!mongoose.Types.ObjectId.isValid(gameId)) return notFound(res, errorMetadata);
+
 	if (!gameId) {
 		newRound.save().then(response => {
 			const game = new Game({
@@ -77,9 +84,7 @@ router.post("/", async (req, res) => {
 			})
 			.catch(exception => {
 				console.error(exception);
-				return res
-					.status(404)
-					.send(`The game with the ID ${gameId} was not found.`);
+				return notFound(res, errorMetadata);
 			});
 	}
 });

@@ -1,16 +1,19 @@
-const { Game, validate } = require("../models/game");
-const { Round } = require("../models/round");
-const { Player } = require("../models/player");
+const { Game } = require("../models/game");
+const { notFound } = require("./utils");
+
 const express = require("express");
 const router = express.Router();
-const _ = require("lodash");
 const mongoose = require("mongoose");
 
-router.get("/", async (req, res) => {
-	const isIdValid = mongoose.Types.ObjectId.isValid(req.query.id);
-	if (!isIdValid) return notFound();
+const _ = require("lodash");
 
-	let game = await Game.findById(req.query.id)
+router.get("/", async (req, res) => {
+	const gameId = req.query.id;
+
+	const errorMetadata = { item: "game", id: gameId };
+	if (!mongoose.Types.ObjectId.isValid(gameId)) return notFound(res, errorMetadata);
+
+	let game = await Game.findById(gameId)
 		.populate({
 			path: "rounds",
 			populate: {
@@ -20,17 +23,11 @@ router.get("/", async (req, res) => {
 		})
 		.select("rounds");
 
-	if (!game) return notFound();
+	if (!game) return notFound(res, errorMetadata);
 
 	game = _.orderBy(game.rounds, ["_id"], ["desc"]);
 
 	res.send(game);
 })
-
-function notFound() {
-	return res
-		.status(404)
-		.send("The category with the given ID was not found.");
-}
 
 module.exports = router;
