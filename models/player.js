@@ -2,29 +2,29 @@ const joi = require("joi");
 const mongoose = require("mongoose");
 
 const playerSchema = new mongoose.Schema({
-    firstName: {
-        type: String,
-        minLength: 2,
-        maxLength: 50,
-        trim: true,
-        required: true,
-    }
+	firstName: {
+		type: String,
+		minLength: 2,
+		maxLength: 50,
+		trim: true,
+		required: true,
+	}
 });
 
 const Player = mongoose.model("Player", playerSchema);
 
 function validatePlayer(player) {
-    const schema = joi.object({
-        players: joi
-            .array()
-            .items({
-                firstName: joi.string().min(2).max(50).required().label("Player name")
-            })
-            .required()
-            .label("Players")
-    })
+	const schema = joi.object({
+		players: joi
+			.array()
+			.items({
+				firstName: joi.string().min(2).max(50).required().label("Player name")
+			})
+			.required()
+			.label("Players")
+	})
 
-    return schema.validate(player);
+	return schema.validate(player);
 }
 
 exports.Player = Player;
