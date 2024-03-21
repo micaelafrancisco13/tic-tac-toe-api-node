@@ -5,6 +5,14 @@ const express = require("express");
 const router = express.Router();
 const _ = require("lodash");
 
+router.get("/", async (req, res) => {
+	const games = await Game.find()
+		.populate("players")
+		.sort("-_id");
+
+	res.send(games);
+})
+
 router.post("/", async (req, res) => {
 	const { error } = validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
