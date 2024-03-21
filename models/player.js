@@ -20,6 +20,7 @@ function validatePlayer(player) {
 			.items({
 				firstName: joi.string().min(2).max(50).required().label("Player name")
 			})
+			.length(2)
 			.required()
 			.label("Players")
 	})
