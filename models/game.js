@@ -1,70 +1,38 @@
 const joi = require("joi");
 const mongoose = require("mongoose");
+joi.objectId = require("joi-objectid")(joi);
 
 const gameSchema = new mongoose.Schema({
-    round: {
-        type: Number,
-        min: 1,
-        max: 1,
-        required: true,
-    },
-    wins: {
-        type: Number,
-        min: 0,
-        max: 1,
-        required: true,
-    },
-    losses: {
-        type: Number,
-        min: 0,
-        max: 1,
-        required: true,
-    },
-    draws: {
-        type: Number,
-        min: 0,
-        max: 1,
-        required: true,
-    },
-    player: {
+    players: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Player",
-        required: true,
-    },
+        ref: "Player"
+    }],
+    rounds: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Round"
+    }]
 });
 
 const Game = mongoose.model("Game", gameSchema);
 
 function validateGame(game) {
     const schema = joi.object({
-        game: joi
+        players: joi
+            .array()
+            .items(joi.objectId())
+            .length(2)
+            .required()
+            .label("Players"),
+        rounds: joi
             .array()
             .items({
-                round: joi.number().min(1).max(1).required().label("Round number"),
-                wins: joi.when('losses', {
-                    is: 1,
-                    then: joi.number().valid(0).required().label("Wins"),
-                    otherwise: joi.number().min(0).max(1).required().label("Wins"),
-                }),
-                losses: joi.when('wins', {
-                    is: 1,
-                    then: joi.number().valid(0).required().label("Losses"),
-                    otherwise: joi.number().min(0).max(1).required().label("Losses"),
-                }),
-                draws: joi
-                    .when([
-                        { ref: 'wins', is: 0 },
-                        { ref: 'losses', is: 0 }
-                    ], {
-                        then: joi.valid(1).messages({
-                            'any.only': 'When both win and lose are 0, draw must be 1'
-                        }),
-                        otherwise: joi.valid(0).label("Draws")
-                    }),
+                score: joi.number().min(0).max(1).required().label("Score"),
                 playerId: joi.objectId().required().label("Player ID"),
             })
+            .min(0)
+            .max(2)
             .required()
-            .label("Game")
+            .label("Rounds")
     });
 
     return schema.validate(game);
