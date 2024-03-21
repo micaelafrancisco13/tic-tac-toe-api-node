@@ -6,8 +6,9 @@ const router = express.Router();
 const _ = require("lodash");
 
 router.get("/", async (req, res) => {
-	const games = await Game.find()
+	let games = await Game.find()
 		.populate("players")
+		.select("players")
 		.sort("-_id");
 
 	res.send(games);
